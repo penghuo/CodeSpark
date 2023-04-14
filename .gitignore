@@ -1,2 +1,23 @@
-*.class
+# sbt project files
+target/
+project/target/
+project/project/
+
+# sbt specific files
+*.sbt
 *.log
+*.lock
+
+# IntelliJ IDEA
+.idea/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Mac OS X
+.DS_Store
+
+# Scala-IDE
+.scala_dependencies
