@@ -1,2 +1,8 @@
 *.class
 *.log
+.idea/
+lib/
+project/project/target/
+project/target/
+target/scala-2.12/
+target/streams/
