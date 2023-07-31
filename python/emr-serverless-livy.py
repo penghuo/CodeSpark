@@ -13,8 +13,9 @@ from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSRequest
 
 # Configure the following
-host = 'http://xxx.livy.emr-serverless-services-beta.us-west-2.amazonaws.com' # configure as required for application
-execution_role = '' # provide valid execution role
+host = 'http://xxx.livy.emr-serverless-services-beta.us-west-2.amazonaws.com' # configure as
+# required for application
+execution_role = 'arn:aws:iam::864921806989:role/AmazonEMR-ExecutionRole-1686075706078' # provide valid execution role
 
 # Creating AWS SigV4 signer
 boto_session = session.Session(
@@ -35,12 +36,12 @@ def get_headers(url, http_method, body):
     aws_request.headers['ExecutionRole'] = execution_role
     return aws_request.headers
 
-def executeQuery(session_url):
+def executeQuery(session_url, query):
     start_time = time.time()
 
     # ExecuteCode
     statement_url = session_url + '/statements'
-    data = {'code': 'select 1'}
+    data = {'code': query}
     print(statement_url)
     r = requests.post(statement_url, data=json.dumps(data), headers=get_headers(statement_url, 'POST', json.dumps(data)))
     print(r)
@@ -61,6 +62,8 @@ def executeQuery(session_url):
         time.sleep(1)
         r = requests.get(result_url, headers=get_headers(result_url, 'GET', None))
 
+    print(r)
+    print(r.content)
     end_time = time.time()
     took = end_time - start_time
 
@@ -107,11 +110,14 @@ if r.status_code == 201 or r.status_code == 200 :
 else :
     print(r)
 
+# create table
+query="CREATE EXTERNAL TABLE http_logs_stream (`@timestamp` TIMESTAMP,clientip STRING,request STRING,status INT,size INT) USING json OPTIONS (path 's3://flint.dev.penghuo.us-west-2/data/http_log/streaming/*',compression 'bzip2')"
+executeQuery(session_url, query)
 
 timings = []
 for _ in range(20):
     start_time = time.time()
-    executeQuery(session_url)
+    executeQuery(session_url, 'SELECT count(*) FROM http_logs_stream')
     end_time = time.time()
     print("===================================================")
     print(f"Statement execution took: {end_time - start_time} seconds")
