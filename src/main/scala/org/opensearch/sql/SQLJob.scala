@@ -35,7 +35,6 @@ object SQLJob {
     val df = spark.sql(query)
     df.show()
 
-    val aos = Map("host" -> "search-test25-znvgc3dcs5plrnmq6otiyfsppy.us-west-2.es.amazonaws.com", "port" -> "-1", "scheme" -> "https", "auth" -> "sigv4", "region" -> "us-west-2")
-    val res = df.write.format("flint").options(aos).mode("overwrite").save("http_logs_batch")
+    val res = df.write.format("flint").mode("overwrite").save("http_logs_batch")
   }
 }
