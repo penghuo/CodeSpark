@@ -8,7 +8,7 @@ val sparkVersion = "3.3.1"
 
 assemblyJarName in assembly := "sql-job.jar"
 
-mainClass in assembly := Some("org.opensearch.sql.SQLJob")
+mainClass in assembly := Some("org.opensearch.sql.SQLStreaming")
 
 resolvers ++= Seq(
   ("apache-snapshots" at "http://repository.apache.org/snapshots/").withAllowInsecureProtocol(true)
