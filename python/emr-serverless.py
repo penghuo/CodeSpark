@@ -23,7 +23,7 @@ def run_shell_command(cmd):
 def executeQuery():
   # start-calculation
   start_time = time.time()
-  r=run_shell_command('aws emr-serverless start-job-run --region us-west-2 --endpoint https://emr-serverless-beta.us-west-2.amazonaws.com --application-id 00fcknm53be7us0l --execution-role-arn arn:aws:iam::864921806989:role/AmazonEMR-ExecutionRole-1686075706078  --job-driver \'{"sparkSubmit": {"entryPoint": "s3://flint.dev.penghuo.us-west-2/lib/jdk8/sql-job.jar","entryPointArguments":["select 1"],"sparkSubmitParameters":"--class org.opensearch.sql.SQLJob --conf spark.executor.cores=1 --conf spark.executor.memory=2g --conf spark.driver.cores=1 --conf spark.driver.memory=2g"}}\' --profile flintpenglivy')
+  r=run_shell_command('aws emr-serverless start-job-run --region us-west-2 --endpoint https://emr-serverless-beta.us-west-2.amazonaws.com --application-id 00fckp3fijj46b0l --execution-role-arn arn:aws:iam::864921806989:role/AmazonEMR-ExecutionRole-1686075706078  --job-driver \'{"sparkSubmit": {"entryPoint": "s3://flint.dev.penghuo.us-west-2/lib/jdk8/sql-job.jar","entryPointArguments":["select 1"],"sparkSubmitParameters":"--class org.opensearch.sql.SQLJob --conf spark.executor.cores=1 --conf spark.executor.memory=2g --conf spark.driver.cores=1 --conf spark.driver.memory=2g"}}\' --profile flintpenglivy')
   startJob_end_time = time.time()
   
   jr = json.loads(r)
@@ -32,13 +32,14 @@ def executeQuery():
 
   # get-calculation-execution
   while True:
-     r=run_shell_command(f'aws emr-serverless get-job-run --region us-west-2 --endpoint https://emr-serverless-beta.us-west-2.amazonaws.com --application-id 00fcknm53be7us0l --job-run-id {jobRunId} --profile flintpenglivy')
+     r=run_shell_command(f'aws emr-serverless get-job-run --region us-west-2 --endpoint https://emr-serverless-beta.us-west-2.amazonaws.com --application-id 00fckp3fijj46b0l --job-run-id {jobRunId} --profile flintpenglivy')
      jr = json.loads(r)
      state=jr['jobRun']['state']
+     t = time.localtime()
+     current_time = time.strftime("%H:%M:%S", t)
      if state == 'SUCCESS':
         break
-     time.sleep(500/1000)
-     print("get-job-run: " + state)
+     print(f"[{current_time}] get-job-run: " + state)
 
   query_end_time = time.time()
   print("===================================================")
