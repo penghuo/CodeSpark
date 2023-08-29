@@ -4,21 +4,25 @@ import org.apache.spark.sql.SparkSession
 
 object SQLJob {
   def main(args: Array[String]) {
-    def main(args: Array[String]) {
-      // Get the SQL query from the command line arguments
-      val sql = args(0)
+    // Get the SQL query from the command line arguments
+    val sql = args(0)
 
-      // Create a SparkSession
-      val spark = SparkSession.builder().appName("SQLJob").getOrCreate()
+    // create spark session
+    val spark = SparkSession.builder()
+      .config(
+        "spark.hadoop.hive.metastore.client.factory.class",
+        "com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory",
+      )
+      .enableHiveSupport()
+      .getOrCreate()
 
-      // Execute the SQL query
-      val df = spark.sql("select 1")
+    // Execute the SQL query
+    val df = spark.sql(sql)
 
-      // Show the results
-      df.show()
+    // Show the results
+    df.show()
 
-      // Stop the SparkSession
-      spark.stop()
-    }
+    // Stop the SparkSession
+    spark.stop()
   }
 }
