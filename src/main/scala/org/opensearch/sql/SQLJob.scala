@@ -22,7 +22,8 @@ object SQLJob {
     // Show the results
     df.show()
 
-    // Stop the SparkSession
-    spark.stop()
+//    // Stop the SparkSession
+//    spark.stop()
+    spark.streams.awaitAnyTermination()
   }
 }
