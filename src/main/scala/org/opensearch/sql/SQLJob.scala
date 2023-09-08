@@ -6,6 +6,7 @@ object SQLJob {
   def main(args: Array[String]) {
     // Get the SQL query from the command line arguments
     val sql = args(0)
+    val wait = args(1)
 
     // create spark session
     val spark = SparkSession.builder()
@@ -22,8 +23,11 @@ object SQLJob {
     // Show the results
     df.show()
 
-//    // Stop the SparkSession
-//    spark.stop()
-    spark.streams.awaitAnyTermination()
+    if (wait.equalsIgnoreCase("wait")) {
+      spark.streams.awaitAnyTermination()
+    } else {
+//      spark.stop()
+    }
+
   }
 }
