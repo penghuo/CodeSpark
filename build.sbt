@@ -6,9 +6,9 @@ scalaVersion := "2.12.15"
 
 val sparkVersion = "3.3.1"
 
-assemblyJarName in assembly := "sql-job.jar"
+assemblyJarName in assembly := "flint-catalog.jar"
 
-mainClass in assembly := Some("org.opensearch.sql.FlintJob")
+//mainClass in assembly := Some("org.opensearch.sql.FlintJob")
 
 resolvers ++= Seq(
   ("apache-snapshots" at "http://repository.apache.org/snapshots/").withAllowInsecureProtocol(true)
