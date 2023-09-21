@@ -1,8 +1,8 @@
 #!/bin/zsh
 
-sql="select * from default.http_logs limit 1"
+sql="select count(*) from default.http_logs"
 
-applicationId=00fd1ddomb5tp60p
+applicationId=00fd775baqpu4g0p
 # applicationId=00fd1ddn6q302e0p
 executionRole=arn:aws:iam::270824043731:role/emr-job-execution-role
 role=arn:aws:iam::924196221507:role/FlintOpensearchServiceRole

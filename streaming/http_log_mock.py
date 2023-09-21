@@ -8,31 +8,7 @@ import time
 session = boto3.Session()
 s3 = session.client('s3')
 
-def generate_file(file_path):
-    # Function to generate a random size value between 0 and 1024
-    def generate_random_size():
-        return random.randint(0, 1024)
-
-    # Generate 1000 JSON records with random size values
-    file_content = []
-    for _ in range(1000):
-        size = generate_random_size()
-        record = {
-            "@timestamp": "1998-04-30T19:59:06.000Z",
-            "clientip": "141.78.0.0",
-            "request": "GET /images/space.gif HTTP/1.0",
-            "status": 304,
-            "size": size
-        }
-        file_content.append(record)
-
-    # write file
-    file_content_json = json.dumps(file_content)
-    with open(file_path, 'w') as file:
-        file.write(file_content_json)
-
-
-def generate_and_upload_file(src_file, bucket_name, N):
+def generate_and_upload_file(bucket_name, N):
     while N > 0:
         # Get the current timestamp to use in the file name
         current_time = time.strftime("%Y-%m-%d-%H-%M-%S")
@@ -41,7 +17,9 @@ def generate_and_upload_file(src_file, bucket_name, N):
         file_key = f"data/http_log/mock_streaming/{file_name}"
 
         # Upload the JSON file to S3
-        s3.upload_file(src_file, bucket_name, file_key)
+        s3.copy_object(
+            CopySource={'Bucket': bucket_name, 'Key': "data/http_log/http_logs_partitioned_json_bz2/year=1998/month=4/day=30/part-00000-76cb51e0-1b8f-41ea-8bfd-e77261483002.c000.json.bz2"}, Bucket=bucket_name, 
+            Key=file_key)
         print(f"uploaded to S3 bucket '{bucket_name}' at path '{file_key}'")
         N = N - 1
 
@@ -62,9 +40,8 @@ if __name__ == "__main__":
     # generate_file(file_path)
 
     clean_up_stack()
-    file_path = "/tmp/part-00000.json.bz2"
     s3_bucket_name = "flint-data-dp-eu-west-1-beta"
 
     while True:
-        generate_and_upload_file(file_path, s3_bucket_name, 10)
+        generate_and_upload_file(s3_bucket_name, 10)
         time.sleep(10)  # Sleep for 10 seconds before generating the next file
