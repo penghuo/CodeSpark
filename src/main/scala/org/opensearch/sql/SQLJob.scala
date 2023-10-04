@@ -28,6 +28,5 @@ object SQLJob {
     } else {
 //      spark.stop()
     }
-
   }
 }

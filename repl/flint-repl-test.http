@@ -1,0 +1,64 @@
+###
+POST {{baseUrl}}/query_submit/_doc/1
+Content-Type: application/x-ndjson
+
+{
+  "id": 1,
+  "status": "pending",
+  "query": "refresh skipping index on default.http_logs"
+}
+
+###
+POST {{baseUrl}}/query_submit/_search
+
+###
+POST {{baseUrl}}/query_submit/_delete_by_query
+Content-Type: application/x-ndjson
+
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+
+###
+POST {{baseUrl}}/query_submit/_search
+Content-Type: application/x-ndjson
+
+{
+  "query": {
+      "term": {
+          "id": {
+              "value": "1"
+          }
+      }
+  }
+}
+
+
+###
+POST {{baseUrl}}/query_results/_search
+Content-Type: application/x-ndjson
+
+{
+  "from": 0,
+  "size": 50,
+  
+    "query": {
+        "term": {
+            "stepId": {
+                "value": "11"
+            }
+        }
+    }
+  
+}
+
+
+###
+DELETE  {{baseUrl}}/flint_default_http_logs_skipping_index/
+
+
+###
+POST  {{baseUrl}}/flint_default_http_logs_skipping_index/_search

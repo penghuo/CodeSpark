@@ -1,78 +1,126 @@
-@baseUrl = http://ec2-54-70-149-21.us-west-2.compute.amazonaws.com:9200
+@baseUrl = http://ec2-54-70-136-129.us-west-2.compute.amazonaws.com:9200
+# @baseUrl = http://localhost:9200
 
 ###
 GET {{baseUrl}}/_cat/indices
 
-###
-DELETE {{baseUrl}}/query_submit
-
-###
-DELETE {{baseUrl}}/query_result
-
-###
-PUT {{baseUrl}}/query_submit
-
-###
-POST {{baseUrl}}/query_submit/_doc/1
+### list datasource
+POST {{baseUrl}}/_plugins/_ppl
 Content-Type: application/x-ndjson
 
 {
-  "id": 1,
-  "status": "pending",
-  "query": "refresh skipping index on default.http_logs"
+  "query": "show datasources"
 }
 
-###
-POST {{baseUrl}}/query_submit/_search
-
-###
-POST {{baseUrl}}/query_submit/_delete_by_query
+### create datasource
+POST {{baseUrl}}/_plugins/_query/_datasources
 Content-Type: application/x-ndjson
 
 {
-  "query": {
-    "match_all": {}
+  "name": "my_glue",
+  "description": "",
+  "connector": "S3GLUE",
+  "allowedRoles": [],
+  "properties": {
+    "glue.auth.type": "iam_role",
+    "glue.auth.role_arn": "arn:aws:iam::924196221507:role/FlintOpensearchServiceRole",
+    "glue.indexstore.opensearch.uri": "http://ec2-54-70-136-129.us-west-2.compute.amazonaws.com:9200",
+    "glue.indexstore.opensearch.region": "us-west-2",
+    "glue.indexstore.opensearch.auth": "noauth",
+    "glue.datasource.spark.config": "--conf spark.dynamicAllocation.enabled=false --conf spark.executor.instances=10"
   }
 }
 
+### get datasource
+GET {{baseUrl}}/_plugins/_query/_datasources/my_glue
 
 ###
-POST {{baseUrl}}/query_submit/_search
+DELETE  {{baseUrl}}/_plugins/_query/_datasources/my_glue
+
+###
+DELETE {{baseUrl}}/.query_execution_result
+
+###
+DELETE {{baseUrl}}/datasource_repl_index
+
+###
+PUT {{baseUrl}}/datasource_repl_index
 Content-Type: application/x-ndjson
 
 {
-  "query": {
-      "term": {
-          "id": {
-              "value": "1"
-          }
+  "settings": {
+    "number_of_shards": "1",
+    "number_of_replicas": "0"
+  },
+  "mappings": {
+    "dynamic": false,
+    "properties": {
+      "type": {
+        "type": "keyword"
+      },
+      "state": {
+        "type": "keyword"
+      },
+      "sessionId": {
+        "type": "keyword"
+      },
+      "jobId": {
+        "type": "keyword"
+      },
+      "applicationId": {
+        "type": "keyword"
+      },
+      "query": {
+        "type": "keyword"
+      },
+      "submitTime": {
+        "type": "long" 
       }
+    }
   }
 }
 
 
 ###
-POST {{baseUrl}}/query_results/_search
+POST {{baseUrl}}/_plugins/_async_query
 Content-Type: application/x-ndjson
 
 {
-  "from": 0,
-  "size": 50,
-  
-    "query": {
-        "term": {
-            "stepId": {
-                "value": "11"
-            }
-        }
+  "lang": "sql",
+  "query": "select * from my_glue.default.http_logs limit 1"
+}
+
+###
+GET {{baseUrl}}/_plugins/_async_query/REPL0298983865
+
+
+###
+GET {{baseUrl}}/datasource_repl_index/_search
+
+
+###
+GET {{baseUrl}}/datasource_repl_index/_search
+Content-Type: application/x-ndjson
+
+{
+  "size": 1,
+  "sort": [
+    {
+      "submitTime": {
+        "order": "asc"
+      }
     }
-  
+  ],
+  "query": {
+    "bool": {
+      "must": [
+        { "term": { "state": "RUNNING" } },
+        { "term": { "type": "request" } }
+      ]
+    }
+  }
 }
 
 
 ###
-DELETE  {{baseUrl}}/flint_default_http_logs_skipping_index/
-
-
-###
-POST  {{baseUrl}}/flint_default_http_logs_skipping_index/_search
+GET  {{baseUrl}}/.query_execution_result/_search

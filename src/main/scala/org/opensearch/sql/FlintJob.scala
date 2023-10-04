@@ -24,13 +24,11 @@ import org.apache.spark.sql.types._
  */
 object FlintJob {
   def main(args: Array[String]) {
-    // Get the SQL query and Opensearch Config from the command line arguments
-    val query = args(0)
-    val resultIndex = args(1)
+    val Array(query, resultIndex) = args
 
     val conf: SparkConf = new SparkConf()
       .setAppName("FlintJob")
-      .set("spark.sql.extensions", "org.opensearch.flint.spark.FlintSparkExtensions")
+    val wait = conf.get("spark.flint.job.type", "continue")
 
     // Create a SparkSession
     val spark = SparkSession.builder().config(conf).enableHiveSupport().getOrCreate()
@@ -50,8 +48,11 @@ object FlintJob {
 
     } finally {
       // Stop SparkSession
-      spark.stop()
-      spark.streams.awaitAnyTermination()
+      if (wait.equalsIgnoreCase("streaming")) {
+        spark.streams.awaitAnyTermination()
+      } else {
+        spark.stop()
+      }
     }
   }
 

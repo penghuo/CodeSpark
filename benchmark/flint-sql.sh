@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-sql="select count(*) from default.http_logs"
+sql="explain select count(*) from default.http_logs"
 
 applicationId=00fd775baqpu4g0p
 # applicationId=00fd1ddn6q302e0p
