@@ -1,0 +1,130 @@
+
+# nexus
+@baseUrl = http://ec2-54-70-136-129.us-west-2.compute.amazonaws.com:9200
+# @baseUrl = http://localhost:9200
+
+###
+GET {{baseUrl}}/_cat/indices
+
+### list datasource
+POST {{baseUrl}}/_plugins/_ppl
+Content-Type: application/x-ndjson
+
+{
+  "query": "show datasources"
+}
+
+### create datasource
+POST {{baseUrl}}/_plugins/_query/_datasources
+Content-Type: application/x-ndjson
+
+{
+  "name": "mys3",
+  "description": "",
+  "connector": "S3GLUE",
+  "allowedRoles": [],
+  "properties": {
+    "glue.auth.type": "iam_role",
+    "glue.auth.role_arn": "arn:aws:iam::924196221507:role/FlintOpensearchServiceRole",
+    "glue.indexstore.opensearch.uri": "http://ec2-54-70-136-129.us-west-2.compute.amazonaws.com:9200",
+    "glue.indexstore.opensearch.auth": "noauth"
+  }
+}
+
+### get datasource
+GET {{baseUrl}}/_plugins/_query/_datasources/mys3
+
+###
+DELETE  {{baseUrl}}/_plugins/_query/_datasources/myS3
+
+###
+DELETE {{baseUrl}}/.query_execution_result
+
+### basic query
+POST {{baseUrl}}/_plugins/_async_query
+Content-Type: application/x-ndjson
+
+{
+  "datasource": "mys3",
+  "lang": "sql",
+  "query": "select * from mys3.default.http_logs limit 1"
+}
+
+### Fetch query result
+GET {{baseUrl}}/_plugins/_async_query/00fdncot87b9c00q
+
+
+### create skipping index query auto_refresh = true
+POST {{baseUrl}}/_plugins/_async_query
+Content-Type: application/x-ndjson
+
+{
+  "datasource": "mys3",
+  "lang": "sql",
+  "query": "create skipping index on mys3.default.http_logs (status VALUE_SET)"
+}
+
+###
+POST {{baseUrl}}/_plugins/_async_query
+Content-Type: application/x-ndjson
+
+{
+  "datasource": "mys3",
+  "lang": "sql",
+  "query": "DESC SKIPPING INDEX on mys3.default.http_logs"
+}
+
+###
+POST {{baseUrl}}/_plugins/_async_query
+Content-Type: application/x-ndjson
+
+{
+  "datasource": "mys3",
+  "lang": "sql",
+  "query": "DESC mys3.default.http_logs"
+}
+
+
+###
+POST {{baseUrl}}/_plugins/_async_query
+Content-Type: application/x-ndjson
+
+{
+  "datasource": "mys3",
+  "lang": "sql",
+  "query": "CREATE INDEX mys3_default_http_logs ON mys3.default.http_logs (status) WITH (auto_refresh = true)"
+}
+
+
+###
+GET {{baseUrl}}/_plugins/_async_query/00fdnn9to5n0500q
+
+
+###
+DELETE {{baseUrl}}/flint_mys3_default_http_logs_skipping_index
+
+
+###
+GET {{baseUrl}}/.ql-datasources/_search
+Content-Type: application/x-ndjson
+
+{
+  "size": 1,
+  "query": {
+    "bool": {
+      "must": [
+        { "term": { "name.keyword": "myS3" } }
+      ]
+    }
+  }
+}
+
+
+###
+GET {{baseUrl}}/.query_execution_result/_search
+
+
+###
+GET {{baseUrl}}/flint_mys3_default_http_logs_skipping_index/_mappings
+
+
