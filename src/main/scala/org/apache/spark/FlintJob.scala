@@ -28,6 +28,8 @@ object FlintJob {
 
     val conf: SparkConf = new SparkConf()
       .setAppName("FlintJob")
+      .set("spark.sql.extensions", "org.opensearch.flint.spark.FlintSparkExtensions")
+
     val wait = conf.get("spark.flint.job.type", "continue")
 
     // Create a SparkSession
@@ -82,6 +84,8 @@ object FlintJob {
       StructField("schema", ArrayType(StringType, containsNull = true), nullable = true),
       StructField("stepId", StringType, nullable = true),
       StructField("applicationId", StringType, nullable = true)))
+
+    result.toJSON.collect()
 
     // Create the data rows
     val rows = Seq((
