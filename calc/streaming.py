@@ -5,7 +5,7 @@ EMR_S_VMEM_COST_HOUR = 0.00082
 FLINT_OCU_COST_HOUR = 0.24
 
 INIT_CORES = 0
-MAX_CORES = 40
+MAX_CORES = 12
 
 class Task:
     def __init__(self, task_duration):
@@ -149,10 +149,12 @@ def main():
     parser.add_argument("--data_ingested_in_gb", type=int, default=100,
                         help="Amount of data in GB to be processed in the simulation.")
     parser.add_argument("--interval", type=int, default=15,
-                        help="schedule interval in minutes.")    
+                        help="schedule interval in minutes.")
+    parser.add_argument("--init_executors", type=int, default=3,help="init executors.")
+    parser.add_argument("--max_executors", type=int, default=30,help="max executors.")    
     args = parser.parse_args()
 
-    (microBatchRunTime, microBatchBilledTime) = simulator(data_scanned_in_gb=args.data_ingested_in_gb)
+    (microBatchRunTime, microBatchBilledTime) = simulator(data_scanned_in_gb=args.data_ingested_in_gb, init_cores = args.init_executors * 4, max_cores = args.max_executors * 4)
 
     # print(f"microBatchRunTime: {microBatchRunTime}")
     # print(f"microBatchBilledTime: {microBatchBilledTime}")

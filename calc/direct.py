@@ -77,8 +77,8 @@ def simulator(data_scanned_in_gb=100, init_cores=12, max_cores=120):
 
         # Handle dynamic resource allocation
         dra_cores = allocator.get()
-        if dra_cores > 0:
-          print(f"DRA cores: {dra_cores}")
+        # if dra_cores > 0:
+        #   print(f"DRA cores: {dra_cores}")
         for _ in range(dra_cores):
             core_list.append(Core())
 
@@ -99,9 +99,9 @@ def simulator(data_scanned_in_gb=100, init_cores=12, max_cores=120):
     
     print(f"Total runtime: {total_runtime} seconds")
     total_runtime = sum(core.runtime for core in core_list)
-    print(f"Total runtime of all cores: {total_runtime} seconds")
+    # print(f"Total runtime of all cores: {total_runtime} seconds")
     total_billedTime = sum(core.roundUpRuntime() for core in core_list)
-    print(f"Total billed time of all cores: {total_billedTime} seconds")
+    # print(f"Total billed time of all cores: {total_billedTime} seconds")
 
     return total_billedTime
 
@@ -118,11 +118,16 @@ def main():
     parser = argparse.ArgumentParser(description="Run a core-task simulation with dynamic allocation.")
     parser.add_argument("--data_scanned_in_gb", type=int, default=100,
                         help="Amount of data in GB to be processed in the simulation.")
+    parser.add_argument("--init_executors", type=int, default=3,help="init executors.")
+    parser.add_argument("--max_executors", type=int, default=30,help="max executors.")
     args = parser.parse_args()
 
-    total_billedTime = simulator(data_scanned_in_gb=args.data_scanned_in_gb)
-    print(f"Cost: {direct_query_cost(total_billedTime)}$")
-    print(f"Price: {direct_query_bill(total_billedTime)}$")
+    total_billedTime = simulator(data_scanned_in_gb=args.data_scanned_in_gb, init_cores = args.init_executors * 4, max_cores = args.max_executors * 4)
+    print(f"Per query billedTime: {total_billedTime}")
+
+    print(f"====================")
+    print(f"Per query Cost: {direct_query_cost(total_billedTime)}$")
+    print(f"Per query Price: {direct_query_bill(total_billedTime)}$")
 
 
 if __name__ == "__main__":
